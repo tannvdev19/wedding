@@ -249,16 +249,16 @@
 
   .spinner, .btn-spinner{
     display:inline-block;
-    width:1em; height:1em;
-    border:2px solid rgba(255,255,255,.3);
-    border-top-color:currentColor;
-    border-radius:50%;
-    animation:spin .8s linear infinite;
+    color:var(--gold-light);
+    animation:heart-load 1s ease-in-out infinite;
   }
-  .spinner{ width:22px; height:22px; border-width:2.5px; color:var(--gold-light); }
-  .btn-spinner{ width:13px; height:13px; }
+  .spinner{ width:24px; height:24px; }
+  .btn-spinner{ width:14px; height:14px; }
   #open-btn:not(:disabled) .btn-spinner{ display:none; }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
+  @keyframes heart-load{
+    0%,100%{ transform:scale(.8); opacity:.6; }
+    50%{ transform:scale(1.15); opacity:1; }
+  }
 
   /* ============================================================
      MAIN CONTENT
@@ -679,10 +679,12 @@
     </div>
     <div class="env-guest">
       <span class="to-label">Kính gửi</span>
-      <span id="guest-name-envelope" class="loading-name"><span class="spinner" aria-hidden="true"></span></span>
+      <span id="guest-name-envelope" class="loading-name">
+        <svg class="spinner" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2 4.5 5.6 4c2.1-.3 3.9.9 4.9 2.6C11.5 4.9 13.3 3.7 15.4 4c3.6.5 5.2 4.1 3.6 7.7C21.5 16.4 12 21 12 21z"/></svg>
+      </span>
     </div>
     <button id="open-btn" type="button" disabled>
-      <span class="btn-spinner" aria-hidden="true"></span>
+      <svg class="btn-spinner" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2 4.5 5.6 4c2.1-.3 3.9.9 4.9 2.6C11.5 4.9 13.3 3.7 15.4 4c3.6.5 5.2 4.1 3.6 7.7C21.5 16.4 12 21 12 21z"/></svg>
       <span class="btn-label">Đang tải…</span>
     </button>
   </div>
@@ -845,8 +847,13 @@
     return map;
   }
 
+  function formatGuestName(text){
+    // Cho phép khách gõ "<3" trong Google Sheet và hiển thị thành trái tim thật
+    return text.replace(/<3/g, '\u2764\uFE0F');
+  }
+
   function applyGuestName(name){
-    var display = name && name.length ? name : "Quý khách";
+    var display = name && name.length ? formatGuestName(name) : "Quý khách";
     var envSpan = document.getElementById('guest-name-envelope');
     envSpan.textContent = display;
     envSpan.classList.remove('loading-name');
