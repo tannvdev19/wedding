@@ -217,6 +217,21 @@
     transition:background .3s ease, color .3s ease;
   }
   #open-btn:hover{ background:var(--ivory); color:var(--wine-deep); }
+  #open-btn:disabled{
+    opacity:.55; cursor:default;
+    border-color:rgba(247,241,230,.35);
+  }
+  #open-btn:disabled:hover{ background:transparent; color:var(--ivory); }
+
+  .loading-name{ opacity:.7; }
+  .loading-name::after{
+    content:'...'; display:inline-block; width:1.4em; text-align:left;
+    animation:loading-dots 1.2s ease-in-out infinite;
+  }
+  @keyframes loading-dots{
+    0%,100%{ opacity:.2; }
+    50%{ opacity:1; }
+  }
 
   /* ============================================================
      MAIN CONTENT
@@ -606,9 +621,9 @@
     </div>
     <div class="env-guest">
       <span class="to-label">Kính gửi</span>
-      <span id="guest-name-envelope">Quý khách</span>
+      <span id="guest-name-envelope" class="loading-name">Đang tải…</span>
     </div>
-    <button id="open-btn" type="button">Chạm để mở thiệp</button>
+    <button id="open-btn" type="button" disabled>Đang tải lời mời…</button>
   </div>
 </div>
 
@@ -771,24 +786,43 @@
 
   function applyGuestName(name){
     var display = name && name.length ? name : "Quý khách";
-    document.getElementById('guest-name-envelope').textContent = display;
+    var envSpan = document.getElementById('guest-name-envelope');
+    envSpan.textContent = display;
+    envSpan.classList.remove('loading-name');
     document.getElementById('guest-name-intro').textContent = display;
     document.title = "Thiệp cưới · " + display;
+
+    var btn = document.getElementById('open-btn');
+    if (btn && btn.disabled){
+      btn.disabled = false;
+      btn.textContent = 'Chạm để mở thiệp';
+    }
   }
 
   function resolveGuest(){
     var id = getParam('id');
+    var btn = document.getElementById('open-btn');
+    // Nếu mạng chậm hoặc Sheet không phản hồi, vẫn cho mở thiệp sau tối đa 4 giây
+    var safetyTimer = setTimeout(function(){
+      if (btn && btn.disabled){
+        applyGuestName(id && FALLBACK_GUESTS[id] ? FALLBACK_GUESTS[id] : null);
+      }
+    }, 4000);
+
     if (!GUEST_SHEET_CSV_URL){
+      clearTimeout(safetyTimer);
       applyGuestName(id && FALLBACK_GUESTS[id] ? FALLBACK_GUESTS[id] : null);
       return;
     }
     fetch(GUEST_SHEET_CSV_URL)
       .then(function(r){ return r.text(); })
       .then(function(text){
+        clearTimeout(safetyTimer);
         var guests = parseCSV(text);
         applyGuestName(id && guests[id] ? guests[id] : null);
       })
       .catch(function(){
+        clearTimeout(safetyTimer);
         applyGuestName(id && FALLBACK_GUESTS[id] ? FALLBACK_GUESTS[id] : null);
       });
   }
