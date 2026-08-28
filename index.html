@@ -29,24 +29,35 @@
 
   2) SỬA THÔNG TIN LỄ CƯỚI: tìm các đoạn có đánh dấu [SỬA Ở ĐÂY] bên dưới.
 
-  3) Đây là 1 file HTML độc lập - có thể kéo thả thẳng vào Netlify Drop,
+  3) THÊM NHẠC NỀN:
+     - Tìm 1 bản nhạc không dính bản quyền (free để dùng công khai),
+       tải về dạng .mp3, đặt tên ví dụ "nhac-nen.mp3".
+     - Bỏ file .mp3 đó vào CÙNG THƯ MỤC với file HTML này (cùng cấp,
+       không để trong thư mục con), rồi upload cả 2 file lên GitHub.
+     - Nếu bạn đặt tên file khác "nhac-nen.mp3", tìm dòng
+       <source src="nhac-nen.mp3" ...> bên dưới và sửa lại tên cho khớp.
+     - Nhạc sẽ tự phát ngay khi khách bấm mở phong bì (trình duyệt chỉ
+       cho phát nhạc sau khi khách đã bấm/chạm vào trang ít nhất 1 lần).
+       Có nút hình nốt nhạc góc dưới màn hình để khách tự bật/tắt.
+
+  4) Đây là 1 file HTML độc lập - có thể kéo thả thẳng vào Netlify Drop,
      Cloudflare Pages, hoặc bất kỳ hosting tĩnh nào để deploy.
   ============================================================
 -->
 
 <style>
   :root{
-    --ivory:#F7F1E6;
-    --ivory-2:#F1E7D8;
+    --ivory:#FFFBF3;
+    --ivory-2:#FDEFE0;
     --ink:#2E2A24;
     --ink-soft:#5A5248;
-    --wine:#7B2B37;
-    --wine-deep:#5C1F29;
-    --rose:#D9A6A2;
-    --rose-soft:#F1DEDA;
-    --gold:#AD8A52;
-    --gold-light:#D9C6A0;
-    --paper-shadow: 0 20px 60px rgba(46,42,36,0.18);
+    --wine:#D0355F;
+    --wine-deep:#A31A45;
+    --rose:#F5A0B0;
+    --rose-soft:#FCE0E4;
+    --gold:#D6A93B;
+    --gold-light:#F3D98A;
+    --paper-shadow: 0 20px 60px rgba(46,42,36,0.16);
     --serif-display: 'Playfair Display', Georgia, serif;
     --serif-body: 'Lora', Georgia, serif;
     --sans-caption: 'Lora', Georgia, serif;
@@ -285,7 +296,7 @@
     overflow:hidden;
     background:
       radial-gradient(ellipse at 50% 0%, var(--rose-soft) 0%, transparent 60%),
-      linear-gradient(165deg, var(--wine-deep) 0%, var(--wine) 55%, #6a2530 100%);
+      linear-gradient(165deg, var(--wine-deep) 0%, var(--wine) 55%, #8a1f47 100%);
     padding:64px 22px;
   }
   .hero::after{
@@ -428,7 +439,7 @@
   }
   .fam-card:hover{
     transform:translateY(-6px);
-    box-shadow:0 18px 34px rgba(123,43,55,.14);
+    box-shadow:0 18px 34px rgba(208,53,95,.16);
   }
   .fam-role{
     font-family:var(--sans-caption); font-size:.66rem; letter-spacing:.3em;
@@ -489,7 +500,7 @@
     letter-spacing:.15em; text-transform:uppercase; font-size:.72rem;
     transition:background .3s ease, transform .3s ease, box-shadow .3s ease;
   }
-  .map-btn:hover{ background:var(--wine-deep); transform:translateY(-3px); box-shadow:0 12px 24px rgba(92,31,41,.3); }
+  .map-btn:hover{ background:var(--wine-deep); transform:translateY(-3px); box-shadow:0 12px 24px rgba(163,26,69,.32); }
 
   /* ---- GALLERY ---- */
   .gallery{ padding:78px 20px 90px; text-align:center; }
@@ -534,6 +545,34 @@
     100%{ background-position:200% 0; }
   }
 
+  /* ---- MUSIC TOGGLE ---- */
+  #music-toggle{
+    position:fixed; right:18px; bottom:18px; z-index:150;
+    width:52px; height:52px; border-radius:50%;
+    background:var(--wine);
+    color:var(--ivory);
+    border:1px solid rgba(255,255,255,.3);
+    display:flex; align-items:center; justify-content:center;
+    box-shadow:0 10px 24px rgba(163,26,69,.35);
+    transition:transform .3s ease, background .3s ease;
+  }
+  #music-toggle:hover{ transform:scale(1.08); }
+  #music-toggle .music-icon{ width:20px; height:20px; }
+  #music-toggle .music-bars{ display:none; align-items:flex-end; gap:3px; height:16px; }
+  #music-toggle .music-bars i{
+    display:block; width:3px; background:currentColor; border-radius:2px;
+    animation:bar-bounce .9s ease-in-out infinite;
+  }
+  #music-toggle .music-bars i:nth-child(1){ height:6px; animation-delay:0s; }
+  #music-toggle .music-bars i:nth-child(2){ height:14px; animation-delay:.15s; }
+  #music-toggle .music-bars i:nth-child(3){ height:9px; animation-delay:.3s; }
+  @keyframes bar-bounce{
+    0%,100%{ transform:scaleY(.5); }
+    50%{ transform:scaleY(1); }
+  }
+  #music-toggle.playing .music-icon{ display:none; }
+  #music-toggle.playing .music-bars{ display:flex; }
+
   /* ---- FLOATING PETALS ---- */
   .petals-layer{
     position:fixed; inset:0; z-index:5; pointer-events:none; overflow:hidden;
@@ -566,7 +605,7 @@
   }
   .env-seal{ animation:seal-glow 2.2s ease-in-out infinite; }
   @keyframes seal-glow{
-    0%,100%{ box-shadow:0 6px 14px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.25), 0 0 0 rgba(173,138,82,0); }
+    0%,100%{ box-shadow:0 6px 14px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.25), 0 0 0 rgba(243,217,138,0); }
     50%{ box-shadow:0 6px 18px rgba(0,0,0,.4), inset 0 2px 3px rgba(255,255,255,.3), 0 0 16px rgba(217,198,160,.55); }
   }
   #open-btn{ animation:btn-pulse 2.6s ease-in-out infinite; }
@@ -691,6 +730,17 @@
 </div>
 
 <!-- ============ MAIN CONTENT ============ -->
+<audio id="bg-music" loop preload="none">
+  <!-- [SỬA Ở ĐÂY] Đặt file nhạc (mp3) cùng thư mục với file HTML này,
+       rồi sửa "nhac-nen.mp3" thành đúng tên file của bạn.
+       Ví dụ: nếu file tên "cuoi.mp3" thì sửa thành src="cuoi.mp3" -->
+  <source src="nhac-nen.mp3" type="audio/mpeg">
+</audio>
+<button id="music-toggle" type="button" aria-label="Bật/tắt nhạc nền" aria-pressed="false">
+  <svg class="music-icon icon-note" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3" fill="currentColor"/><circle cx="18" cy="16" r="3" fill="currentColor"/></svg>
+  <span class="music-bars" aria-hidden="true"><i></i><i></i><i></i></span>
+</button>
+
 <div id="main">
 
   <!-- HERO -->
@@ -907,6 +957,7 @@
   function openInvitation(){
     envelope.classList.add('open');
     openBtn.disabled = true;
+    tryPlayMusic();
     setTimeout(function(){
       envScreen.classList.add('hidden');
       main.classList.add('show');
@@ -923,6 +974,30 @@
 
   document.body.style.overflow = 'hidden';
   openBtn.addEventListener('click', openInvitation);
+
+  /* ---------- Nhạc nền ---------- */
+  var musicEl = document.getElementById('bg-music');
+  var musicBtn = document.getElementById('music-toggle');
+  function tryPlayMusic(){
+    if (!musicEl) return;
+    musicEl.play().then(function(){
+      musicBtn.classList.add('playing');
+      musicBtn.setAttribute('aria-pressed', 'true');
+    }).catch(function(){
+      // Trình duyệt chặn tự phát — khách bấm nút nhạc để bật tay
+    });
+  }
+  if (musicBtn && musicEl){
+    musicBtn.addEventListener('click', function(){
+      if (musicEl.paused){
+        tryPlayMusic();
+      } else {
+        musicEl.pause();
+        musicBtn.classList.remove('playing');
+        musicBtn.setAttribute('aria-pressed', 'false');
+      }
+    });
+  }
 
   var scrollHint = document.getElementById('scroll-hint');
   var introSection = document.getElementById('intro-section');
