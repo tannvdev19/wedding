@@ -48,13 +48,13 @@
 <style>
   :root{
     --ivory:#FFFBF3;
-    --ivory-2:#FDEFE0;
+    --ivory-2:#FCE9EB;
     --ink:#2E2A24;
     --ink-soft:#5A5248;
-    --wine:#D0355F;
-    --wine-deep:#A31A45;
-    --rose:#F5A0B0;
-    --rose-soft:#FCE0E4;
+    --wine:#CE2E3F;
+    --wine-deep:#982735;
+    --rose:#E8677A;
+    --rose-soft:#FBDCE3;
     --gold:#D6A93B;
     --gold-light:#F3D98A;
     --paper-shadow: 0 20px 60px rgba(46,42,36,0.16);
@@ -108,7 +108,7 @@
     position:fixed; inset:0; z-index:100;
     display:flex; align-items:center; justify-content:center;
     background:
-      radial-gradient(ellipse at 50% -10%, var(--rose-soft), var(--rose) 60%, var(--wine-deep) 130%);
+      radial-gradient(ellipse at 50% -10%, var(--rose) 0%, var(--wine) 65%, var(--wine-deep) 120%);
     transition:opacity .9s ease, visibility .9s ease;
   }
   #envelope-screen.hidden{
@@ -141,46 +141,71 @@
     filter:drop-shadow(0 22px 40px rgba(50,15,20,.35));
     perspective:900px;
   }
-  .env-body{
-    position:absolute; inset:0;
+  .env-card{
+    position:absolute; left:50%; top:50%;
+    width:82%; height:78%;
     background:var(--ivory);
-    border-radius:6px;
+    border:1px solid var(--gold-light);
+    border-radius:4px;
+    transform:translate(-50%,-50%) scale(.82);
+    z-index:2;
+    transition:transform 1.7s cubic-bezier(.3,1.1,.4,1) .8s, opacity .9s ease .8s;
+    opacity:0;
+    display:flex; align-items:center; justify-content:center;
+    padding:10px;
   }
-  .env-flap{
-    position:absolute; top:0; left:0; right:0; height:56%;
-    background:var(--ivory-2);
-    clip-path:polygon(0 0, 100% 0, 50% 96%);
-    transform-origin:top center;
-    transition:transform 1s cubic-bezier(.6,-0.2,.2,1.3);
-    z-index:3;
-    border-radius:6px 6px 0 0;
+  .envelope.open .env-card{
+    transform:translate(-50%,-50%) scale(1);
+    opacity:1;
   }
-  .env-flap::after{
-    content:'';
-    position:absolute; inset:0;
-    background:linear-gradient(160deg, rgba(0,0,0,0) 60%, rgba(46,42,36,.08));
+
+  /* ---- CỬA HỶ (double gate) ---- */
+  .gate{
+    position:absolute; top:0; bottom:0; width:50%;
+    background:linear-gradient(160deg, #B01223 0%, var(--wine) 55%, var(--wine-deep) 100%);
+    z-index:4;
+    transition:transform 1.8s cubic-bezier(.65,0,.3,1);
+    box-shadow:inset 0 0 30px rgba(0,0,0,.25);
   }
-  .envelope.open .env-flap{ transform:rotateX(178deg); z-index:1; }
+  .gate-left{ left:0; border-radius:6px 0 0 6px; transform-origin:left center; }
+  .gate-right{ right:0; border-radius:0 6px 6px 0; transform-origin:right center; }
+  .gate-trim{
+    position:absolute; top:8%; bottom:8%; width:2px;
+    background:linear-gradient(var(--gold-light), var(--gold), var(--gold-light));
+    opacity:.85;
+  }
+  .gate-left .gate-trim{ right:10px; }
+  .gate-right .gate-trim{ left:10px; }
+  .gate-knob{
+    position:absolute; top:50%; width:10px; height:10px; border-radius:50%;
+    background:var(--gold-light);
+    box-shadow:0 0 6px rgba(0,0,0,.3);
+    transform:translateY(-50%);
+  }
+  .gate-left .gate-knob{ right:16px; }
+  .gate-right .gate-knob{ left:16px; }
+  .envelope.open .gate-left{ transform:translateX(-104%) rotateY(-12deg); }
+  .envelope.open .gate-right{ transform:translateX(104%) rotateY(12deg); }
 
   .env-seal{
-    position:absolute; left:50%; top:44%;
+    position:absolute; left:50%; top:50%;
     width:56px; height:56px;
     transform:translate(-50%,-50%);
-    background:radial-gradient(circle at 32% 28%, #9a4c56, var(--wine) 55%, var(--wine-deep) 100%);
+    background:radial-gradient(circle at 32% 28%, #e0525f, var(--wine) 55%, var(--wine-deep) 100%);
     border-radius:50%;
     display:flex; align-items:center; justify-content:center;
     font-family:var(--serif-display);
     font-style:italic; font-size:1.05rem; color:var(--gold-light);
-    z-index:4;
+    z-index:5;
     box-shadow:0 6px 14px rgba(0,0,0,.35), inset 0 2px 3px rgba(255,255,255,.25);
-    transition:opacity .5s ease .1s, transform .5s ease .1s;
+    transition:opacity .5s ease, transform .5s ease;
   }
   .seal-ring{
     position:absolute; inset:-14px; color:var(--gold-light);
     animation:seal-ring-spin 14s linear infinite;
   }
   @keyframes seal-ring-spin{ to{ transform:rotate(360deg); } }
-  .envelope.open .env-seal{ opacity:0; transform:translate(-50%,-50%) scale(.4); }
+  .envelope.open .env-seal{ opacity:0; transform:translate(-50%,-50%) scale(.3) rotate(20deg); }
 
   /* ---- CORNER FLORALS ---- */
   .env-florals{ position:absolute; inset:0; z-index:1; color:var(--gold-light); pointer-events:none; }
@@ -188,31 +213,6 @@
   .ef-tl{ top:-10px; left:-10px; }
   .ef-br{ bottom:-10px; right:-10px; }
   .env-petals{ position:absolute; inset:0; z-index:1; overflow:hidden; pointer-events:none; }
-
-  .env-card{
-    position:absolute; left:50%; bottom:6%;
-    width:82%; height:78%;
-    background:var(--ivory);
-    border:1px solid var(--gold-light);
-    border-radius:4px;
-    transform-origin:50% 100%;
-    transform:translate(-50%,0) rotateX(-100deg) scale(.9);
-    z-index:2;
-    transition:transform 1.1s cubic-bezier(.34,1.4,.4,1) .25s, opacity .4s ease .25s;
-    opacity:0;
-    display:flex; align-items:center; justify-content:center;
-    padding:10px;
-    backface-visibility:hidden;
-  }
-  .envelope.open .env-card{
-    transform:translate(-50%,-46%) rotateX(0deg) scale(1);
-    opacity:1;
-    animation:card-settle .6s ease .9s;
-  }
-  @keyframes card-settle{
-    0%,100%{ transform:translate(-50%,-46%) rotateX(0deg) scale(1); }
-    50%{ transform:translate(-50%,-49%) rotateX(4deg) scale(1.015); }
-  }
   .env-card-inner{
     text-align:center; color:var(--ink);
   }
@@ -296,7 +296,7 @@
     overflow:hidden;
     background:
       radial-gradient(ellipse at 50% 0%, var(--rose-soft) 0%, transparent 60%),
-      linear-gradient(165deg, var(--wine-deep) 0%, var(--wine) 55%, #8a1f47 100%);
+      linear-gradient(165deg, var(--wine-deep) 0%, var(--wine) 55%, #6e0c17 100%);
     padding:64px 22px;
   }
   .hero::after{
@@ -439,7 +439,7 @@
   }
   .fam-card:hover{
     transform:translateY(-6px);
-    box-shadow:0 18px 34px rgba(208,53,95,.16);
+    box-shadow:0 18px 34px rgba(200,23,42,.16);
   }
   .fam-role{
     font-family:var(--sans-caption); font-size:.66rem; letter-spacing:.3em;
@@ -491,8 +491,16 @@
   .map-frame{
     max-width:640px; margin:30px auto 22px; border-radius:12px; overflow:hidden;
     border:1px solid var(--gold-light); box-shadow:var(--paper-shadow);
+    position:relative;
   }
   .map-frame iframe{ width:100%; height:320px; border:0; display:block; }
+  .map-fallback{
+    padding:40px 24px; background:var(--ivory);
+    display:flex; flex-direction:column; align-items:center; gap:10px;
+  }
+  .map-fallback svg{ width:38px; height:38px; color:var(--wine); margin-bottom:6px; }
+  .map-fallback p{ margin:0; color:var(--ink-soft); font-size:.92rem; max-width:440px; }
+  .map-fallback-tip{ font-size:.82rem !important; opacity:.85; }
   .map-btn{
     display:inline-block; margin-top:6px;
     background:var(--wine); color:var(--ivory); text-decoration:none;
@@ -500,7 +508,7 @@
     letter-spacing:.15em; text-transform:uppercase; font-size:.72rem;
     transition:background .3s ease, transform .3s ease, box-shadow .3s ease;
   }
-  .map-btn:hover{ background:var(--wine-deep); transform:translateY(-3px); box-shadow:0 12px 24px rgba(163,26,69,.32); }
+  .map-btn:hover{ background:var(--wine-deep); transform:translateY(-3px); box-shadow:0 12px 24px rgba(140,15,30,.32); }
 
   /* ---- GALLERY ---- */
   .gallery{ padding:78px 20px 90px; text-align:center; }
@@ -553,7 +561,7 @@
     color:var(--ivory);
     border:1px solid rgba(255,255,255,.3);
     display:flex; align-items:center; justify-content:center;
-    box-shadow:0 10px 24px rgba(163,26,69,.35);
+    box-shadow:0 10px 24px rgba(140,15,30,.35);
     transition:transform .3s ease, background .3s ease;
   }
   #music-toggle:hover{ transform:scale(1.08); }
@@ -692,12 +700,19 @@
   <div class="env-wrap">
     <div class="env-label">Thiệp mời</div>
     <div class="envelope" id="envelope">
-      <div class="env-body"></div>
       <div class="env-card">
         <div class="env-card-inner">
           <div class="to">Vu Quy &middot; Tân Hôn</div>
           <div class="name">Văn Tân &amp; Bích Trâm</div>
         </div>
+      </div>
+      <div class="gate gate-left">
+        <span class="gate-trim"></span>
+        <span class="gate-knob"></span>
+      </div>
+      <div class="gate gate-right">
+        <span class="gate-trim"></span>
+        <span class="gate-knob"></span>
       </div>
       <div class="env-seal">
         <svg class="seal-ring" viewBox="0 0 100 100" fill="none" aria-hidden="true">
@@ -714,7 +729,6 @@
         </svg>
         T&amp;T
       </div>
-      <div class="env-flap"></div>
     </div>
     <div class="env-guest">
       <span class="to-label">Kính gửi</span>
@@ -783,7 +797,6 @@
   <!-- FAMILIES -->
   <section class="families">
     <div class="section-sub">Lễ Tân Hôn</div>
-    <h2 class="section-title">Của con chúng tôi</h2>
     <div class="divider reveal"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21s-7.5-4.6-10-9.3C.4 8.1 2 4.5 5.6 4c2.1-.3 3.9.9 4.9 2.6C11.5 4.9 13.3 3.7 15.4 4c3.6.5 5.2 4.1 3.6 7.7C21.5 16.4 12 21 12 21z"/></svg></div>
 
     <div class="fam-grid">
@@ -830,12 +843,18 @@
   <section class="map-section">
     <div class="section-sub">Đường đến nhà hàng</div>
     <h2 class="section-title">Xuân Hải Complex</h2>
-    <div class="map-frame reveal reveal-scale">
+    <div class="map-frame reveal reveal-scale" id="map-frame">
       <iframe
+        id="map-iframe"
         loading="lazy"
         referrerpolicy="no-referrer-when-downgrade"
         src="https://www.google.com/maps?q=Nh%C3%A0%20h%C3%A0ng%20Xu%C3%A2n%20H%E1%BA%A3i%20Complex%2C%20Qu%E1%BB%91c%20l%E1%BB%99%201D%2C%20Th%C3%B4n%204%2C%20Xu%C3%A2n%20L%E1%BB%99c%2C%20%C4%90%E1%BA%AFk%20L%E1%BA%AFk%2C%20Vi%E1%BB%87t%20Nam&output=embed"
         allowfullscreen title="Bản đồ đường đến nhà hàng Xuân Hải Complex"></iframe>
+      <div class="map-fallback" id="map-fallback" hidden>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 21s7-6.5 7-12a7 7 0 1 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></svg>
+        <p>Trình duyệt trong ứng dụng Facebook/Messenger thường chặn bản đồ nhúng.</p>
+        <p class="map-fallback-tip">Bấm nút bên dưới để mở bằng Google Maps, hoặc bấm menu <b>⋯</b> góc trên và chọn <b>"Mở bằng trình duyệt"</b> (Chrome/Safari) để xem đầy đủ trang.</p>
+      </div>
     </div>
     <a class="map-btn" href="https://maps.app.goo.gl/DmfShgW3cSHVA7uSA?g_st=az" target="_blank" rel="noopener">Chỉ đường Google Maps</a>
   </section>
@@ -948,6 +967,20 @@
 
   resolveGuest();
 
+  /* ---------- Phát hiện trình duyệt trong app (Facebook/Messenger/Instagram) ---------- */
+  (function handleInAppBrowser(){
+    var ua = navigator.userAgent || '';
+    var isInApp = /FBAN|FBAV|FB_IAB|Instagram|Messenger/i.test(ua);
+    if (!isInApp) return;
+    var iframe = document.getElementById('map-iframe');
+    var fallback = document.getElementById('map-fallback');
+    if (!iframe || !fallback) return;
+    // Iframe bản đồ thường bị webview trong app chặn âm thầm (không báo lỗi),
+    // nên chủ động ẩn iframe và hiện khối hướng dẫn thay thế.
+    iframe.style.display = 'none';
+    fallback.hidden = false;
+  })();
+
   /* ---------- Envelope open ---------- */
   var envelope = document.getElementById('envelope');
   var envScreen = document.getElementById('envelope-screen');
@@ -969,7 +1002,7 @@
           window.scrollBy({ top: window.innerHeight * 0.62, left:0, behavior:'smooth' });
         }, 700);
       }
-    }, 1650);
+    }, 3000);
   }
 
   document.body.style.overflow = 'hidden';
